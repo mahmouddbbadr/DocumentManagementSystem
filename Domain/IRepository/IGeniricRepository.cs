@@ -8,17 +8,16 @@ namespace Application.IRepository
 {
     public interface IGenericRepository<T> where T : class
     {
-        ICollection<T> GetAll(string usrId);
-        T GetByIdOrName(Guid id, string usrId);
-        T GetByIdOrName(string name, string usrId);
-        bool CheckEntityExits(string name, string usrId);
-        bool CheckEntityExits(Guid id, string usrId);
+        ICollection<T> GetAll(string userId);
+        T GetByIdOrName(Guid id, string userId);
+        T GetByIdOrName(string name, string userId);
+        bool CheckEntityExits(string name, string userId);
+        bool CheckEntityExits(Guid id, string userId);
         bool CheckEntityExits(string name);
-
         bool Create(T entity);
         bool update(T entity);
-        bool Delete(string name, string usrId);
-        bool Delete(Guid id, string usrId);
+        bool Delete(string name, string userId);
+        bool Delete(Guid id, string userId);
         bool Save();
     }
 }

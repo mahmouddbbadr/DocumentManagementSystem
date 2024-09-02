@@ -31,16 +31,6 @@ namespace Presentaion.Controllers
             return NotFound(result.Message);
         }
 
-        [HttpGet("id")]
-        public async Task<IActionResult> DownloadDocument(Guid id)
-        {
-            var result = await documentService.DownloadDocument(id);
-            if (result.Success)
-            {
-                return Ok(result.Path);
-            }
-            return NotFound(result.Message);
-        }
 
         [HttpGet]
         public async Task<IActionResult> GetDocuments()
@@ -95,6 +85,18 @@ namespace Presentaion.Controllers
                 return Ok(result.Message);
             }
             return BadRequest(result.Message);
+        }
+
+
+        [HttpGet("Download/name")]
+        public async Task<IActionResult> DownloadDocument(string name)
+        {
+            var result = await documentService.DownloadDocument(name);
+            if (result.Success)
+            {
+                return File(result.bytes, result.contentType, result.name);
+            }
+            return NotFound(result.Message);
         }
 
         [HttpDelete("name")]

@@ -22,14 +22,16 @@ namespace Infrasturcture.Repositories
         {
             return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId).Any(d => d.Name.Trim().ToLower() == name.Trim().ToLower());
         }
-        public bool CheckEntityExits(string name)
-        {
-            return context.Documents.Where(d => d.IsDeleted == false).Any(d => d.Name.Trim().ToLower() == name.Trim().ToLower());
-        }
         public bool CheckEntityExits(Guid id, string userId)
         {
             return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId).Any(d => d.Id == id);
         }
+
+        public bool CheckEntityExits(string name)
+        {
+            return context.Documents.Where(d => d.IsDeleted == false).Any(d => d.Name == name);
+        }
+
 
         public ICollection<Document> GetAll(string userId)
         {

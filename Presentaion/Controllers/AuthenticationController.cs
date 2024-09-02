@@ -27,7 +27,7 @@ namespace Presentaion.Controllers
                 var result = await userService.UserRegister(userRegisterDto);
                 if (result.Success == true) 
                 {
-                    return Ok(result.Message);
+                    return Ok(new { result.Success, result.Message });
                 }
                 return BadRequest(result.Message);
 
@@ -44,7 +44,7 @@ namespace Presentaion.Controllers
                 var result  =await userService.UserLogin(userLoginDto);
                 if (result.Success == true)
                 {
-                    return Ok(new {result.Success, result.Token, result.Message });
+                    return Ok(new {result.Success, result.Token, result.user, result.Message });
                 }
                 return Unauthorized(result.Message);
 

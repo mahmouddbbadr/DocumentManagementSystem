@@ -16,6 +16,10 @@ namespace Application.MapperHelper
         public ProfileMapper()
         {
             CreateMap<AppUser, UserDto>();
+            CreateMap<AppUser, UserOutputDto>()
+                .ForMember(dest => dest.WorkSpaceName, opt => opt.MapFrom(src => src.WorkSpace.Name))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
+
 
             CreateMap<Domain.Models.Directory, DirectoryDto>()
                  .ForMember(dest => dest.WorkspaceName, opt => opt.MapFrom(src => src.WorkSpace.Name))

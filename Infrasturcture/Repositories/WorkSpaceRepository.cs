@@ -23,15 +23,14 @@ namespace Infrasturcture.Repositories
             return context.WorkSpaces.Where(w => w.IsDeleted == false && w.AppUser.Id == usrId).Any(w => w.Name.Trim().ToLower() == name.Trim().ToLower());
         }
 
-        public bool CheckEntityExits(string name)
-        {
-            return context.WorkSpaces.Where(w => w.IsDeleted == false).Any(w => w.Name.Trim().ToLower() == name.Trim().ToLower());
-        }
-
-
         public bool CheckEntityExits(Guid id, string usrId)
         {
             return context.WorkSpaces.Where(w => w.IsDeleted == false && w.AppUser.Id == usrId).Any(w => w.Id == id);
+        }
+
+        public bool CheckEntityExits(string name)
+        {
+            return context.WorkSpaces.Where(d => d.IsDeleted == false).Any(d => d.Name == name);
         }
 
         public ICollection<WorkSpace> GetAll(string usrId)

@@ -18,34 +18,35 @@ namespace Infrasturcture.Repositories
         {
             this.context = context;
         }
-        public bool CheckEntityExits(string name, string usrId)
+        public bool CheckEntityExits(string name, string userId)
         {
-            return context.Directories.Where(d => d.IsDeleted == false & d.UserId == usrId).Any(d=> d.Name.Trim().ToLower() == name.Trim().ToLower());
+            return context.Directories.Where(d => d.IsDeleted == false & d.UserId == userId).Any(d=> d.Name.Trim().ToLower() == name.Trim().ToLower());
         }
+
+        public bool CheckEntityExits(Guid id, string userId)
+        {
+            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == userId).Any(d => d.Id == id);
+        }
+
         public bool CheckEntityExits(string name)
         {
-            return context.Directories.Where(d => d.IsDeleted == false).Any(d => d.Name.Trim().ToLower() == name.Trim().ToLower());
+            return context.Directories.Where(d => d.IsDeleted == false ).Any(d => d.Name == name);
         }
 
-        public bool CheckEntityExits(Guid id, string usrId)
+        public ICollection<Domain.Models.Directory> GetAll(string userId)
         {
-            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == usrId).Any(d => d.Id == id);
+            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == userId).Include(d=> d.WorkSpace).Include(d=> d.AppUser).ToList();
         }
 
-        public ICollection<Domain.Models.Directory> GetAll(string usrId)
+        public Domain.Models.Directory GetByIdOrName(Guid id, string userId)
         {
-            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == usrId).Include(d=> d.WorkSpace).Include(d=> d.AppUser).ToList();
-        }
-
-        public Domain.Models.Directory GetByIdOrName(Guid id, string usrId)
-        {
-            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == usrId).Include(d => d.WorkSpace).Include(d => d.AppUser)
+            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == userId).Include(d => d.WorkSpace).Include(d => d.AppUser)
                 .FirstOrDefault(d => d.Id == id);
         }
 
-        public Domain.Models.Directory GetByIdOrName(string name, string usrId)
+        public Domain.Models.Directory GetByIdOrName(string name, string userId)
         {
-            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == usrId).Include(d => d.WorkSpace).Include(d => d.AppUser)
+            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == userId).Include(d => d.WorkSpace).Include(d => d.AppUser)
                 .FirstOrDefault(d => d.Name.Trim().ToLower() == name.Trim().ToLower());
 
         }
@@ -61,15 +62,15 @@ namespace Infrasturcture.Repositories
             context.Update(entity);
             return Save();
         }
-        public bool Delete(string name, string usrId)
+        public bool Delete(string name, string userId)
         {
-            var directory  = context.Directories.Where(d=> d.IsDeleted == false && d.UserId == usrId).FirstOrDefault(d=> d.Name.Trim().ToLower() == name.Trim().ToLower());
+            var directory  = context.Directories.Where(d=> d.IsDeleted == false && d.UserId == userId).FirstOrDefault(d=> d.Name.Trim().ToLower() == name.Trim().ToLower());
             directory.IsDeleted = true;
             return Save();
         }
-        public bool Delete(Guid id, string usrId)
+        public bool Delete(Guid id, string userId)
         {
-            var directory = context.Directories.Where(d => d.IsDeleted == false && d.UserId == usrId).FirstOrDefault(d => d.Id == id);
+            var directory = context.Directories.Where(d => d.IsDeleted == false && d.UserId == userId).FirstOrDefault(d => d.Id == id);
             directory.IsDeleted = true;
             return Save();
         }
@@ -80,6 +81,6 @@ namespace Infrasturcture.Repositories
             return saved > 0 ? true : false; 
         }
 
-    
+
     }
 }

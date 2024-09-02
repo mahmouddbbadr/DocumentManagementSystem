@@ -9,6 +9,7 @@ using Infrasturcture.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -66,22 +67,37 @@ namespace Presentaion
             builder.Services.AddAuthorization();
 
 
-            builder.Services.AddSwaggerGen(options =>
+            builder.Services.AddSwaggerGen(Options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo
+                var securityScheme = new OpenApiSecurityScheme
                 {
-                    Version = "v1",
-                    Title = "Document Maagement System API",
-                    TermsOfService = new Uri("https://go.microsoft.com/fwlink/?LinkID=206977"),
-                    Contact = new OpenApiContact
+                    Name = "Authorization",
+                    Description = "JWT Auth Bearer",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    Reference = new OpenApiReference
                     {
-                        Name = "Mahmoud",
-                        Email = "mahmoud.badr@atos.net",
-                        Url = new Uri("https://learn.microsoft.com/training")
-
+                        Id = "Bearer",
+                        Type = ReferenceType.SecurityScheme
                     }
-                });
+                };
+                Options.AddSecurityDefinition("Bearer", securityScheme);
+                var securityRequirment = new OpenApiSecurityRequirement { { securityScheme, new[] { "bearer" } } };
+                Options.AddSecurityRequirement(securityRequirment);
 
+
+            });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigins",
+                builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
             });
             // Add services to the container.
 
@@ -98,8 +114,11 @@ namespace Presentaion
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+ 
             app.UseHttpsRedirection();
+            app.UseRouting();
+
+            app.UseCors("AllowOrigins");
 
             app.UseAuthentication();
             app.UseAuthorization();

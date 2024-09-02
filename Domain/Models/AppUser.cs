@@ -20,7 +20,7 @@ namespace Domain.Models
 
         [ForeignKey("WorkSpace")]
         public Guid WorkspaceId { get; set; }
-        public virtual WorkSpace WorkSpace { get; set; }
+        public WorkSpace WorkSpace { get; set; }
         public virtual ICollection<Directory> Directories { get; set; }
         public virtual ICollection<Document> Documents { get; set; }
     }

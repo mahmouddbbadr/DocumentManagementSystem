@@ -1,6 +1,7 @@
 ﻿using Application.Dtos;
 using DocumentManagementSystem.Services.Dtos;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Application.IServices
     public interface IDocumentService
     {
         public Task<(bool Success, string Message)> UploadeDocument(DocumentInputDto documentDto);
-        public Task<(bool Success, string Path, string Message)> DownloadDocument(Guid id);
+        public Task<(bool Success, byte[] bytes, string contentType, string name, string Message)> DownloadDocument(string name);
         public Task<(bool Success, string Message)> DeleteDocument(string name);
         public Task<(bool Success,DocumentOutputDto document, string Message)> GetDocument(string name);
         public Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> GetDocuments();

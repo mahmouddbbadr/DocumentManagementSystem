@@ -2,6 +2,7 @@
 using Application.IRepository;
 using Application.Services;
 using AutoMapper;
+using DocumentManagementSystem.Services.Dtos;
 using Domain.Models;
 using Infrasturcture.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -50,7 +52,7 @@ namespace Infrasturcture.Services
                     var newUser = new AppUser()
                     {
                         Email = registerDto.Email,
-                        UserName = registerDto.Email,
+                        UserName = registerDto.Email.Substring(0, registerDto.Email.IndexOf('@')),
                         Address = registerDto.Address,
                         NId = registerDto.NId,
                         PhoneNumber = registerDto.PhoneNumber
@@ -65,8 +67,6 @@ namespace Infrasturcture.Services
                     var isCreated = await userManager.CreateAsync(newUser, registerDto.Password);
                     if(isCreated.Succeeded) 
                     {
-                        
-                        //await userManager.UpdateAsync(newUser);
                         await userManager.AddToRoleAsync(newUser, "User");
                         return (true, "Account added successfully" );
                     }
@@ -78,11 +78,14 @@ namespace Infrasturcture.Services
             return (false, "User already exists");
         }
 
-        public async Task<(bool Success, string Token, string Message)> UserLogin(UserLoginDto loginDto)
+        public async Task<(bool Success, string Token, UserOutputDto user, string Message)> UserLogin(UserLoginDto loginDto)
         {
             var user = await userManager.FindByEmailAsync(loginDto.Email);
-            if(user != null && user.IsLocked == false) 
+
+            if (user != null && user.IsLocked == false) 
             {
+                var workwpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, user.Id);
+                user.WorkSpace = workwpace;
                 var checkPassword = await userManager.CheckPasswordAsync(user, loginDto.Password);
                 if(checkPassword)
                 {
@@ -100,43 +103,69 @@ namespace Infrasturcture.Services
 
                     SecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]));
                     SigningCredentials signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-                    JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(
+                    JwtSecurityToken jwtSecurityToken = new JwtSecurityToken
+                        (
                         expires: DateTime.Now.AddDays(3),
                         signingCredentials: signingCredentials,
                         claims: claims
                         );
-                    return (true, new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken), null);
+                    var mappedUser = mapper.Map<UserOutputDto>(user);
+                    return (true, new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken), mappedUser, null);
 
                 }
-                return (false, null, "Password is not correct");
+                return (false, null, null, "Password is not correct");
 
             }
-            return (false, null, "User was not found");
+            return (false, null, null, "User was not found");
         }
 
-        public async Task<(bool Success, UserDto user, string Message)> GetUser(string email)
+        public async Task<(bool Success, UserOutputDto user, string Message)> GetUser(string email)
         {
-            var user = mapper.Map<UserDto>(userRepository.GetUserByEmail(email));
-            if (user == null)
-                return (false, null, $"No user was found with email \"{email}\"");
-            return (true, user, "founfd");
+            var user = userRepository.GetUserByEmail(email);
+            if (user != null)
+            {
+            var workwpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, user.Id);
+            user.WorkSpace = workwpace;
+            var mappedUSer = mapper.Map<UserOutputDto>(user);
+            return (true, mappedUSer, "");
+            }
+            return (false, null, $"No user was found with email \"{email}\"");
         }
 
-        public async Task<(bool Success, ICollection<UserDto> users, string Message)> GetUnBlockedUsers()
+        public async Task<(bool Success, ICollection<UserOutputDto> users, string Message)> GetUnBlockedUsers()
         {
-            var users = mapper.Map<ICollection<UserDto>>(userRepository.GetUnBlockedUsers());
-            if (users.Count == 0) 
-                return(false, null, "No users was found");
-            return (true, users, "");
-
+            var users = (userRepository.GetUnBlockedUsers());
+            if (users.Count != 0)
+            {
+                List<UserOutputDto> mappedUsers = new List<UserOutputDto>();
+                foreach (var user in users)
+                {
+                    var workwpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, user.Id);
+                    user.WorkSpace = workwpace;
+                    var mappedUser = mapper.Map<UserOutputDto>(user);
+                    mappedUsers.Add(mappedUser);
+                }
+                return (true, mappedUsers, "");
+            }
+            return (false, null, "No users was found");
         }
 
-        public async Task<(bool Success, ICollection<UserDto> users, string Message)> GetBlockedUsers()
+        public async Task<(bool Success, ICollection<UserOutputDto> users, string Message)> GetBlockedUsers()
         {
-            var users = mapper.Map<ICollection<UserDto>>(userRepository.GetBlockedUsers());
-            if (users.Count == 0)
-                return (false, null, "No users was found");
-            return (true, users, "");
+            var users = (userRepository.GetBlockedUsers());
+            if (users.Count != 0)
+            {
+                List<UserOutputDto> mappedUsers = new List<UserOutputDto>();
+                foreach (var user in users)
+                {
+                    var workwpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, user.Id);
+                    user.WorkSpace = workwpace;
+                    var mappedUser = mapper.Map<UserOutputDto>(user);
+                    mappedUsers.Add(mappedUser);
+                }
+                return (true, mappedUsers, "");
+            }
+            return (false, null, "No users was found");
         }
 
         public async Task<(bool Success, string Message)> BlockUser(string email)

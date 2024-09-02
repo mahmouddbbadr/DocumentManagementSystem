@@ -17,6 +17,12 @@ using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Reflection.Metadata.BlobBuilder;
+using System.Xml.Linq;
+using static Azure.Core.HttpHeader;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Infrasturcture.Services
 {
@@ -105,7 +111,7 @@ namespace Infrasturcture.Services
                             documentDto.File.CopyTo(stream);
                             var document = new Domain.Models.Document()
                             {
-                                Name = documentDto.File.FileName,
+                                Name = fileName,
                                 Path = path,
                                 Size = documentDto.File.Length,
                                 UploadedAt = DateTime.Now,
@@ -224,19 +230,27 @@ namespace Infrasturcture.Services
             return (false, "User was not found");
         }
 
-        public async Task<(bool Success, string Path, string Message)> DownloadDocument(Guid id)
+        public async Task<(bool Success, byte[] bytes, string contentType, string name, string Message)> DownloadDocument(string name)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
             {
-                var document = documentRepository.GetByIdOrName(id, userId);
+                var document = documentRepository.GetByIdOrName(name, userId);
                 if (document != null)
                 {
-                    return (true, document.Path, "");
+                    var path = Path.Combine(environment.WebRootPath, "SavedDocuments", name);
+                    var provider = new FileExtensionContentTypeProvider();
+                    if(!provider.TryGetContentType(path, out var contentType))
+                    {
+                        contentType = "application/octet-stream";
+                    }
+                    var bytes = await File.ReadAllBytesAsync(path);
+                    return (true, bytes, contentType, document.Name, "");
+
                 }
-                return (false, null, "Document was not found");
+                return (false,null, null, null, $"Document was not found");
             }
-            return (false, null, "User was not found");
+            return (false,null, null, null, "User was not found");
         }
 
     }

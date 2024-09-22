@@ -1,26 +1,27 @@
 ﻿using Application.Dtos;
-using DocumentManagementSystem.Services.Dtos;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+using DocumentManagementSystem.Services.ResultPattern;
+
 
 namespace Application.IServices
 {
     public interface IDocumentService
     {
-        public Task<(bool Success, string Message)> UploadeDocument(DocumentInputDto documentDto);
-        public Task<(bool Success, byte[] bytes, string contentType, string name, string Message)> DownloadDocument(string name);
-        public Task<(bool Success, string Message)> DeleteDocument(string name);
-        public Task<(bool Success,DocumentOutputDto document, string Message)> GetDocument(string name);
-        public Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> GetDocuments();
-        public Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> SortByName();
-        public Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> SortBySize();
-        public Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> SortByDate();
+        public Task <GenericResult> UploadeDocument(DocumentInputDto documentDto);
+        public Task <GenericResult> GetDocument(string name);
+        public Task <GenericResult> GetDocumentsByDirectoryName(string name);
+        public Task<GenericResult> AdminGetDocumentsByDirectoryName(string name, string userId);
+
+        public Task <GenericResult> GetDocuments();
+        public Task <GenericResult> GetSharedDocuments();
+
+        public Task <GenericResult> SortByName();
+        public Task <GenericResult> SortBySize();
+        public Task <GenericResult> SortByDate();
+        public Task <(bool Success, byte[] bytes, string contentType, string name, string Message)> DownloadDocument(string name, string wwwRootName);
+        public Task <GenericResult> DeleteDocument(string name);
+
+        public Task <GenericResult> EditDocument(string name, string NewName);
+
 
 
 

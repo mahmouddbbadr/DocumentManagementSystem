@@ -1,28 +1,21 @@
 ﻿using Application.Dtos;
-using DocumentManagementSystem.Services.Dtos;
-using Domain.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DocumentManagementSystem.Services.ResultPattern;
+
 
 namespace Application.Services
 {
     public interface IUserService
     {
-        public Task<(bool Success, string Message)> UserRegister(UserRegisterDto registerDto);
-        public Task<(bool Success, string Token, UserOutputDto user, string Message)> UserLogin(UserLoginDto loginDto);
-        public Task<(bool Success, string Message)> BlockUser(string email);
-        public Task<(bool Success, string Message)> UnBlockUser(string email);
-        public Task<(bool Success, UserOutputDto user, string Message)> GetUser(string email);
-        public Task<(bool Success, ICollection<UserOutputDto> users, string Message)> GetUnBlockedUsers();
-        public Task<(bool Success, ICollection<UserOutputDto> users, string Message)> GetBlockedUsers();
+        public Task<GenericResult> UserRegister(UserRegisterDto registerDto);
+        public Task<GenericResult> UserLogin(UserLoginDto loginDto);
+        public Task<GenericResult> LoginedUserInformation();
+        public Task<GenericResult> AdminGetUserInformation(string userId);
 
-
-
-
+        public Task<GenericResult> BlockUser(string email);
+        public Task<GenericResult> UnBlockUser(string email);
+        public Task<GenericResult> GetUser(string email);
+        public Task<GenericResult> GetUnBlockedUsers();
+        public Task<GenericResult> GetBlockedUsers();
 
 
     }

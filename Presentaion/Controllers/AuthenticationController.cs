@@ -1,7 +1,9 @@
 ﻿using Application.Dtos;
 using Application.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+
 
 namespace Presentaion.Controllers
 {
@@ -25,11 +27,11 @@ namespace Presentaion.Controllers
             if(ModelState.IsValid)
             {
                 var result = await userService.UserRegister(userRegisterDto);
-                if (result.Success == true) 
+                if (result.Success) 
                 {
-                    return Ok(new { result.Success, result.Message });
+                    return Ok(result);
                 }
-                return BadRequest(result.Message);
+                return BadRequest(result);
 
             }
             return BadRequest(ModelState);
@@ -42,11 +44,29 @@ namespace Presentaion.Controllers
             if(ModelState.IsValid)
             {
                 var result  =await userService.UserLogin(userLoginDto);
-                if (result.Success == true)
+                if (result.Success)
                 {
-                    return Ok(new {result.Success, result.Token, result.user, result.Message });
+                    return Ok(result);
                 }
-                return Unauthorized(result.Message);
+                return Unauthorized(result);
+
+            }
+            return Unauthorized(ModelState);
+        }
+
+
+        [Authorize]
+        [HttpGet("UserInformation")]
+        public async Task<IActionResult> LoginUserInformation()
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await userService.LoginedUserInformation();
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                return Unauthorized(result);
 
             }
             return Unauthorized(ModelState);

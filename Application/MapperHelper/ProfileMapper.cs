@@ -2,6 +2,7 @@
 using AutoMapper;
 using DocumentManagementSystem.Services.Dtos;
 using Domain.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +14,10 @@ namespace Application.MapperHelper
 {
     public class ProfileMapper : Profile
     {
+     
         public ProfileMapper()
         {
+
             CreateMap<AppUser, UserDto>();
             CreateMap<AppUser, UserOutputDto>()
                 .ForMember(dest => dest.WorkSpaceName, opt => opt.MapFrom(src => src.WorkSpace.Name))
@@ -24,10 +27,9 @@ namespace Application.MapperHelper
             CreateMap<Domain.Models.Directory, DirectoryDto>()
                  .ForMember(dest => dest.WorkspaceName, opt => opt.MapFrom(src => src.WorkSpace.Name))
                  .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.AppUser.UserName));
+            CreateMap<Domain.Models.Directory, DirectoryOutputDto>();
+            CreateMap<Document, DocumentOutputDto>().ForMember(d => d.Path, opt => opt.MapFrom(l =>$"SavedDocuments/{l.WWWRootName}" ));
 
-            CreateMap<Document, DocumentOutputDto>();
-
-                
 
         }
     }

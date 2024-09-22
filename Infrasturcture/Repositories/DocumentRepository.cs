@@ -1,12 +1,7 @@
-﻿using Application.IRepository;
-using DocumentManagementSystem.Domain.IRepository;
+﻿using DocumentManagementSystem.Domain.IRepository;
 using Domain.Models;
 using Infrasturcture.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Infrasturcture.Repositories
 {
@@ -21,6 +16,11 @@ namespace Infrasturcture.Repositories
         public bool CheckEntityExits(string name, string userId)
         {
             return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId).Any(d => d.Name.Trim().ToLower() == name.Trim().ToLower());
+        } 
+        
+        public bool CheckDocumentExits(string name, string userId, string directoryName)
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId && d.Directory.Name == directoryName).Any(d => d.Name.Trim().ToLower() == name.Trim().ToLower());
         }
         public bool CheckEntityExits(Guid id, string userId)
         {
@@ -98,5 +98,15 @@ namespace Infrasturcture.Repositories
             return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId).OrderBy(d => d.Size).ToList();
         }
 
+        public ICollection<Document> GetByDirectoryId(Guid directoryId)
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.DirectoryId == directoryId).ToList();
+        }
+
+        public ICollection<Document> GetAllShared()
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false).ToList();
+
+        }
     }
 }

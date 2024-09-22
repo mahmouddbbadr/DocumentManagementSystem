@@ -2,27 +2,16 @@
 using Application.IRepository;
 using Application.IServices;
 using AutoMapper;
-using Azure;
 using DocumentManagementSystem.Domain.IRepository;
 using DocumentManagementSystem.Services.Dtos;
 using Domain.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Reflection.Metadata.BlobBuilder;
-using System.Xml.Linq;
-using static Azure.Core.HttpHeader;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.StaticFiles;
+using DocumentManagementSystem.Services.ResultPattern;
+
 
 namespace Infrasturcture.Services
 {
@@ -50,7 +39,7 @@ namespace Infrasturcture.Services
         }
 
 
-        public async Task<(bool Success, DocumentOutputDto document, string Message)> GetDocument(string name)
+        public async Task<GenericResult> GetDocument(string name)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
@@ -59,15 +48,17 @@ namespace Infrasturcture.Services
                 if (document != null)
                 {
                     var documentDto = mapper.Map<DocumentOutputDto>(document);
-                    documentDto.Content = await File.ReadAllBytesAsync(document.Path);
-                    return (true, documentDto, "");
+                    return (new GenericResult() { Success = true, Body = documentDto, Message = null });
+
                 }
-                return (false, null, "Document was not found");
+                return (new GenericResult() { Success = false, Body = null, Message = "Document was not found" });
+
             }
-            return (false, null, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
         }
 
-        public async Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> GetDocuments()
+        public async Task<GenericResult> GetDocuments()
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
@@ -76,22 +67,37 @@ namespace Infrasturcture.Services
                 if (documents.Count != 0)
                 {
                     var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
-                    for (int i = 0; i < documents.Count; i++)
-                    {
-                        documentDtos.ElementAt(i).Content = await File.ReadAllBytesAsync(documents.ElementAt(i).Path);
-                    }
-
-                    return (true, documentDtos, "");
+                    return (new GenericResult() { Success = true, Body = documentDtos, Message = null});
                 }
-                return (false, null, "No documents was not found");
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
             }
-            return (false, null, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
         }
 
-        public async Task<(bool Success, string Message)> UploadeDocument(DocumentInputDto documentDto)
+        public async Task<GenericResult> GetSharedDocuments()
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.GetAllShared();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);            
+                    return (new GenericResult() { Success = true, Body = documentDtos, Message = null});
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
+        }
+
+        public async Task<GenericResult> UploadeDocument(DocumentInputDto documentDto)
         {
 
-            List<string> validExtentions = new List<string>() { ".docx", ".pdf", ".xlsx", ".jpg", ".jpeg", ".png" };
+            List<string> validExtentions = new List<string>() { ".docx", ".pdf", ".txt", ".xlsx", ".jpg", ".jpeg", ".png" };
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
             {
@@ -99,7 +105,7 @@ namespace Infrasturcture.Services
                 var directory = directoryRepository.GetByIdOrName(documentDto.DirectoryName, userId);
                 if (directory != null)
                 {
-                    var documentExists = documentRepository.CheckEntityExits(documentDto.File.FileName, userId);
+                    var documentExists = documentRepository.CheckDocumentExits(documentDto.File.FileName, userId, documentDto.DirectoryName);
                     if (!documentExists)
                     {
                         string extention = Path.GetExtension(documentDto.File.FileName).ToLower();
@@ -111,7 +117,8 @@ namespace Infrasturcture.Services
                             documentDto.File.CopyTo(stream);
                             var document = new Domain.Models.Document()
                             {
-                                Name = fileName,
+                                Name = documentDto.File.FileName,
+                                WWWRootName = fileName,
                                 Path = path,
                                 Size = documentDto.File.Length,
                                 UploadedAt = DateTime.Now,
@@ -122,31 +129,36 @@ namespace Infrasturcture.Services
                                 Tags = new List<Tag>()
                             };
                             documentRepository.Create(document);
-                            foreach (var doctag in documentDto.Tags)
+                            foreach (var doctag in documentDto?.Tags)
                             {
                                 var tagExists = tagRepository.Get(doctag);
                                 if (tagExists == null)
                                 {
-                                    var tag = new Tag() { Name = doctag};
+                                    var tag = new Tag() { Name = doctag };
                                     tagRepository.Create(tag);
                                     document.Tags.Add(tag);
                                 }
                                 document.Tags.Add(tagExists);
                             }
-                            return (true, "Document added successfully");
+                            return (new GenericResult() { Success = true, Body = null, Message = "Document added successfully" });
+
                         }
-                        return (false, $"Extention is not valid, valid extentions are ({string.Join(',', validExtentions)})");
+                        return (new GenericResult() { Success = false, Body = null, Message = $"Extention is not valid, valid extentions are ({string.Join(',', validExtentions)})" });
+
 
                     }
-                    return (false, $"Document name \"{documentDto.File.FileName}\" already exists");
+                    return (new GenericResult() { Success = false, Body = null, Message = $"Document name \"{documentDto.File.FileName}\" already exists" });
+
                 }
-                return (false, $"No directory was found with name \"{documentDto.DirectoryName}\"");
+                return (new GenericResult() { Success = false, Body = null, Message = $"No directory was found with name \"{documentDto.DirectoryName}\"" });
+
 
             }
-            return (false, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
         }
 
-        public async Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> SortByName()
+        public async Task<GenericResult> SortByName()
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
@@ -155,19 +167,16 @@ namespace Infrasturcture.Services
                 if (documents.Count != 0)
                 {
                     var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
-                    for (int i = 0; i < documents.Count; i++)
-                    {
-                        documentDtos.ElementAt(i).Content = await File.ReadAllBytesAsync(documents.ElementAt(i).Path);
-                    }
-
-                    return (true, documentDtos, "");
+                    return (new GenericResult() { Success = true, Body = documentDtos, Message = null });
                 }
-                return (false, null, "No documents was not found");
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
             }
-            return (false, null, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
         }
 
-        public async Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> SortBySize()
+        public async Task<GenericResult> SortBySize()
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
@@ -176,20 +185,18 @@ namespace Infrasturcture.Services
                 if (documents.Count != 0)
                 {
                     var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
-                    for (int i = 0; i < documents.Count; i++)
-                    {
-                        documentDtos.ElementAt(i).Content = await File.ReadAllBytesAsync(documents.ElementAt(i).Path);
-                    }
+                    return (new GenericResult() { Success = true, Body = documentDtos, Message = null });
 
-                    return (true, documentDtos, "");
                 }
-                return (false, null, "No documents was not found");
-            }
-            return (false, null, "User was not found");
-        }
-    
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
 
-        public async Task<(bool Success, ICollection<DocumentOutputDto> documents, string Message)> SortByDate()
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
+        }
+
+
+        public async Task<GenericResult> SortByDate()
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
@@ -198,39 +205,17 @@ namespace Infrasturcture.Services
                 if (documents.Count != 0)
                 {
                     var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
-                    for (int i = 0; i < documents.Count; i++)
-                    {
-                        documentDtos.ElementAt(i).Content = await File.ReadAllBytesAsync(documents.ElementAt(i).Path);
-                    }
+                    return (new GenericResult() { Success = true, Body = documentDtos, Message = null });
 
-                    return (true, documentDtos, "");
                 }
-                return (false, null, "No documents was not found");
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
             }
-            return (false, null, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
         }
 
-        public async Task<(bool Success, string Message)> DeleteDocument(string name)
-         {
-            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(userId != null)
-            {
-                var document = documentRepository.GetByIdOrName(name, userId);
-                if(document != null)
-                {
-                    if(document.UserId == userId)
-                    {
-                        documentRepository.Delete(name, userId);
-                        return (true, "Document deleted successfully");
-                    }
-                    return (false, "You can not delete this, it is not yours!");
-                }
-                return (false, $"Document name \"{name}\" was not found");
-            }
-            return (false, "User was not found");
-        }
-
-        public async Task<(bool Success, byte[] bytes, string contentType, string name, string Message)> DownloadDocument(string name)
+        public async Task<GenericResult> DeleteDocument(string name)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
@@ -238,9 +223,33 @@ namespace Infrasturcture.Services
                 var document = documentRepository.GetByIdOrName(name, userId);
                 if (document != null)
                 {
-                    var path = Path.Combine(environment.WebRootPath, "SavedDocuments", name);
+                    if (document.UserId == userId)
+                    {
+                        documentRepository.Delete(name, userId);
+                        return (new GenericResult() { Success = true, Body = null, Message = "Document deleted successfully" });
+
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = "You can not delete this, it is not yours!" });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = $"Document name \"{name}\" was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
+        }
+
+        public async Task<(bool Success, byte[] bytes, string contentType, string name, string Message)> DownloadDocument(string name, string wwwRootName)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var document = documentRepository.GetByIdOrName(name, userId);
+                if (document != null)
+                {
+                    var path = Path.Combine(environment.WebRootPath, "SavedDocuments", wwwRootName);
                     var provider = new FileExtensionContentTypeProvider();
-                    if(!provider.TryGetContentType(path, out var contentType))
+                    if (!provider.TryGetContentType(path, out var contentType))
                     {
                         contentType = "application/octet-stream";
                     }
@@ -248,11 +257,71 @@ namespace Infrasturcture.Services
                     return (true, bytes, contentType, document.Name, "");
 
                 }
-                return (false,null, null, null, $"Document was not found");
+                return (false, null, null, null, $"Document was not found");
             }
-            return (false,null, null, null, "User was not found");
+            return (false, null, null, null, "User was not found");
         }
 
+        public async Task<GenericResult> GetDocumentsByDirectoryName(string name)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var directory = directoryRepository.GetByIdOrName(name, userId);
+                var documents = documentRepository.GetByDirectoryId(directory.Id);
+                if (documents.Count != 0)
+                {
+                    var Mappeddocuments = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = Mappeddocuments, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+        public async Task<GenericResult> AdminGetDocumentsByDirectoryName(string name, string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                var directory = directoryRepository.GetByIdOrName(name, userId);
+                var documents = documentRepository.GetByDirectoryId(directory.Id);
+                if (documents.Count != 0)
+                {
+                    var Mappeddocuments = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = Mappeddocuments, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+        public async Task<GenericResult> EditDocument(string OldName, string NewName)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var DocExists = documentRepository.CheckEntityExits(OldName, userId);
+                if (DocExists)
+                {
+                    if (!documentRepository.CheckEntityExits(NewName, userId) | NewName == OldName)
+                    {
+                        var document = documentRepository.GetByIdOrName(OldName, userId);
+                        document.Name = NewName;
+                        directoryRepository.Save();
+                        var mappedDocument = mapper.Map<DocumentOutputDto>(document);
+                        return (new GenericResult() { Success = true, Body = mappedDocument, Message = "changes saved successfully" });
+
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = $"Directory name \"{NewName}\" already Exists" });
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = $"Can not find Document name \"{OldName}\"" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
+        }
     }
-    
 }

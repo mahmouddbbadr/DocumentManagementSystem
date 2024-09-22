@@ -1,11 +1,8 @@
-﻿using Application.Dtos;
-using Application.IRepository;
-using Application.Services;
-using AutoMapper;
+﻿using Application.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
+
+
 
 namespace Presentaion.Controllers
 {
@@ -15,7 +12,6 @@ namespace Presentaion.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService userService;
-
 
 
         public UserController(IUserService userService)
@@ -30,9 +26,20 @@ namespace Presentaion.Controllers
             var result = await userService.GetUser(email);
             if(result.Success)
             {
-                return Ok(result.user);
+                return Ok(result);
             }
-            return NotFound(result.Message);
+            return NotFound(result);
+        }
+
+        [HttpGet("Id")]
+        public async Task<IActionResult> GetUserIngormation(string id)
+        {
+            var result = await userService.AdminGetUserInformation(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return NotFound(result);
         }
 
         [HttpGet]
@@ -40,8 +47,8 @@ namespace Presentaion.Controllers
         {
             var result = await userService.GetUnBlockedUsers();
             if (result.Success)
-                return Ok(result.users);
-            return NotFound(result.Message);
+                return Ok(result);
+            return NotFound(result);
         }
 
         [HttpGet("BlockedUsers")]
@@ -49,8 +56,8 @@ namespace Presentaion.Controllers
         {
             var result = await userService.GetBlockedUsers();
             if (result.Success)
-                return Ok(result.users);
-            return NotFound(result.Message);
+                return Ok(result);
+            return NotFound(result);
         }
 
         [HttpPut("Block")]
@@ -58,8 +65,8 @@ namespace Presentaion.Controllers
         {
             var result = await userService.BlockUser(email);
             if (result.Success)
-                return Ok(result.Message);
-            return NotFound(result.Message);
+                return Ok(result);
+            return NotFound(result);
         }
 
         [HttpPut("UnBlock")]
@@ -67,8 +74,8 @@ namespace Presentaion.Controllers
         {
             var result = await userService.UnBlockUser(email);
             if (result.Success)
-                return Ok(result.Message);
-            return NotFound(result.Message);
+                return Ok(result);
+            return NotFound(result);
         }
 
     }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
 
 namespace DocumentManagementSystem.Services.Dtos
 {
@@ -11,9 +7,10 @@ namespace DocumentManagementSystem.Services.Dtos
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string WWWRootName { get; set; }
         public DateTime UploadedAt { get; set; }
-        public byte[] Content { get; set; }
-        public string Owner { get; set; } 
+        public string extention { get; set; }
+        public string Owner { get; set; }  
         public string Path { get; set; }
         public long Size { get; set; }
 

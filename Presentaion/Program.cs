@@ -9,6 +9,7 @@ using Infrasturcture.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -119,6 +120,7 @@ namespace Presentaion
             app.UseRouting();
 
             app.UseCors("AllowOrigins");
+            app.UseStaticFiles();
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -137,28 +139,7 @@ namespace Presentaion
                         await roleManager.CreateAsync(new IdentityRole(role));
                 }
             }
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-            //    string email = "mahmoudbadr@gmail.com";
-            //    string password = "123123@Mm";
 
-            //    if (await userManager.FindByEmailAsync(email) == null)
-            //    {
-            //        var user = new AppUser();
-            //        user.UserName = email;
-            //        user.Email = email;
-            //        user.EmailConfirmed = true;
-            //        var workspace = new WorkSpace() { Name = "Master" };
-            //        DataContext context = new DataContext();
-            //        user.WorkspaceId = workspace.Id;
-            //        context.WorkSpaces.Add(workspace);
-
-            //        await userManager.CreateAsync(user, password);
-            //        await userManager.AddToRoleAsync(user, "Admin");
-            //    }
-
-            //}
 
             app.Run();
         }

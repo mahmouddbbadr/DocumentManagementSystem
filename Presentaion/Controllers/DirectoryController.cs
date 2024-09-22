@@ -1,13 +1,9 @@
-﻿using Application.Dtos;
-using Application.IRepository;
-using Application.IServices;
-using AutoMapper;
-using Domain.Models;
+﻿using Application.IServices;
+using DocumentManagementSystem.Services.Dtos;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+
+
 
 namespace Presentaion.Controllers
 {
@@ -28,11 +24,11 @@ namespace Presentaion.Controllers
         public async Task<IActionResult> GetDirectory(string name)
         {
             var result = await directoryService.GetDirectory(name);
-            if(result.Success) 
+            if (result.Success)
             {
-                return Ok(result.directory); 
+                return Ok(result);
             }
-            return NotFound(result.Message);
+            return NotFound(result);
         }
 
 
@@ -40,12 +36,23 @@ namespace Presentaion.Controllers
         public async Task<IActionResult> GetDirectoryies()
         {
             var result = await directoryService.GetDirectoryies();
-            if(result.Success)
+            if (result.Success)
             {
-                return Ok(result.directories);
+                return Ok(result);
             }
-            return NotFound(result.Message);
+            return NotFound(result);
+        }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet("UserId")]
+        public async Task<IActionResult> AdminGetDirectoryies(string id)
+        {
+            var result = await directoryService.AdminGetDirectoryies(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return NotFound(result);
         }
 
 
@@ -53,11 +60,22 @@ namespace Presentaion.Controllers
         public async Task<IActionResult> CreateDirectory(string name)
         {
             var result = await directoryService.CreateDirectory(name);
-            if(result.Success )
+            if (result.Success)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
+        }
+
+        [HttpPut("Name")]
+        public async Task<IActionResult> EditDirectory(string name, DirectoryOutputDto directory)
+        {
+            var result = await directoryService.EditDirectory(name, directory);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
 
 
@@ -66,36 +84,12 @@ namespace Presentaion.Controllers
         {
 
             var result = await directoryService.DeleteDirectory(name);
-            if(result.Success )
-            {
-                return Ok(result.Message);
-            }
-            return BadRequest(result.Message);
-
-        }
-
-        [HttpPut("MakeDirPublic")]
-        public async Task<IActionResult> MakeDirectoryPublic(string name)
-        {
-            var result = await directoryService.MakeDirectoryPublic(name);
             if (result.Success)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
+
         }
-
-        [HttpPut("MakeDirPrivate")]
-        public async Task<IActionResult> MakeDirectoryPrivate(string name)
-        {
-            var result = await directoryService.MakeDirectoryPrivate(name);
-            if (result.Success)
-            {
-                return Ok(result.Message);
-            }
-            return BadRequest(result.Message);
-        }
-
-
     }
 }

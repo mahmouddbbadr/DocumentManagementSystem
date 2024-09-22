@@ -2,17 +2,13 @@
 using Application.IRepository;
 using Application.IServices;
 using AutoMapper;
+using DocumentManagementSystem.Services.Dtos;
+using DocumentManagementSystem.Services.ResultPattern;
 using Domain.Models;
-using Infrasturcture.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Infrasturcture.Services
 {
@@ -32,7 +28,7 @@ namespace Infrasturcture.Services
             this.mapper = mapper;
         }
 
-        public async Task<(bool Success, string Message)> CreateDirectory(string name)
+        public async Task<GenericResult> CreateDirectory(string name)
         {
 
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -51,18 +47,21 @@ namespace Infrasturcture.Services
                     var createdDirectory = directoryRepository.Create(directory);
                     if (createdDirectory)
                     {
-                    return (true, "Directory created successfully");
+                    return (new GenericResult() { Success = true, Body = null, Message = "Directory created successfully" });
                     }
-                    return (false, "Something went worng while creating directory, try again!");
+                    return (new GenericResult() { Success = false, Body = null, Message = "Something went worng while creating directory, try again!" });
+
 
                 };
-                return (false, $"Directory name \"{name}\" already exists");
-                
+                return (new GenericResult() { Success = false, Body = null, Message = $"Directory name \"{name}\" already exists" });
+
+
             }
-            return (false, "User was not found");
+            return (new GenericResult(){Success = false, Body = null, Message = "User was not found"});
+
         }
 
-        public async Task<(bool Success, DirectoryDto directory, string Message)> GetDirectory(string name)
+        public async Task<GenericResult> GetDirectory(string name)
         {
             var UsrId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (UsrId != null)
@@ -71,29 +70,51 @@ namespace Infrasturcture.Services
                 if (checkDirExsits)
                 {
                     var directory = mapper.Map<DirectoryDto>(directoryRepository.GetByIdOrName(name, UsrId));
-                    return (true, directory, "");
+                    return (new GenericResult() { Success = true, Body = directory, Message = null });
+
                 }
-                return (false, null, $"No directory was found with name \"{name}\"");
+                return (new GenericResult() { Success = false, Body = null, Message = $"No directory was found with name \"{name}\"" });
+
+
             }
-            return (false, null, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
         }
 
-        public async Task<(bool Success, ICollection<DirectoryDto> directories, string Message)> GetDirectoryies()
+        public async Task<GenericResult> GetDirectoryies()
         {
-            var UsrId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (UsrId != null)
+            var userId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
             {
-                var directories = mapper.Map<ICollection<DirectoryDto>>(directoryRepository.GetAll(UsrId));
+                var directories = mapper.Map<ICollection<DirectoryDto>>(directoryRepository.GetAll(userId));
                 if (directories != null)
                 {
-                    return(true, directories, "");
+                    return (new GenericResult() { Success = true, Body = directories, Message = null});
+
                 }
-                return(false, null, "No directories was found for this user");
+                return (new GenericResult() { Success = false, Body = null, Message = "No directories was found for this user" });
+
             }
-            return(false, null, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+        public async Task<GenericResult> AdminGetDirectoryies(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                var directories = mapper.Map<ICollection<DirectoryDto>>(directoryRepository.GetAll(userId));
+                if (directories != null)
+                {
+                    return (new GenericResult() { Success = true, Body = directories, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No directories was found for this user" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
         }
 
-        public async Task<(bool Success, string Message)> DeleteDirectory(string name)
+        public async Task<GenericResult> DeleteDirectory(string name)
         {
 
             var UsrId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -103,14 +124,18 @@ namespace Infrasturcture.Services
                 if (exists)
                 {
                     var directory = directoryRepository.Delete(name, UsrId);
-                    return(true, $"Directory \"{name}\" was deleted successfully");
+                    return (new GenericResult() { Success = true, Body = null, Message = $"Directory \"{name}\" was deleted successfully" });
+
                 }
-                return(false, $"Can not find Directory name \"{name}\"");
+                return (new GenericResult() { Success = false, Body = null, Message = $"Can not find Directory name \"{name}\"" });
+
             }
-            return(false, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
         }
 
-        public async Task<(bool Success, string Message)> MakeDirectoryPublic(string name)
+
+        public async Task<GenericResult> EditDirectory(string name, DirectoryOutputDto directoryDto)
         {
             var UsrId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (UsrId != null)
@@ -118,32 +143,25 @@ namespace Infrasturcture.Services
                 var exists = directoryRepository.CheckEntityExits(name, UsrId);
                 if (exists)
                 {
-                    var directory = directoryRepository.GetByIdOrName(name, UsrId);
-                    directory.IsPrivate = false;
-                    directoryRepository.Save();
-                    return(true, $"Directory \"{name}\" has been made public successfully");
-                }
-                return(false, $"Can not find Directory name \"{name}\"");
-            }
-            return(false, "User was not found");
-        }
+                    if (!directoryRepository.CheckEntityExits(directoryDto.Name, UsrId) | directoryDto.Name == name)
+                    {
+                        var directory = directoryRepository.GetByIdOrName(name, UsrId);
+                        directory.IsPrivate = directoryDto.IsPrivate;
+                        directory.Name = directoryDto.Name;
+                        directoryRepository.Save();
+                        var mappedDirectory = mapper.Map<DirectoryOutputDto>(directory);
+                        return (new GenericResult() { Success = true, Body = mappedDirectory, Message = "changes saved successfully" });
 
-        public async Task<(bool Success, string Message)> MakeDirectoryPrivate(string name)
-        {
-            var UsrId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (UsrId != null)
-            {
-                var exists = directoryRepository.CheckEntityExits(name, UsrId);
-                if (exists)
-                {
-                    var directory = directoryRepository.GetByIdOrName(name, UsrId);
-                    directory.IsPrivate = true;
-                    directoryRepository.Save();
-                    return(true, $"Directory \"{name}\" has been made private successfully");
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = $"Directory name \"{directoryDto.Name}\" already Exists" });
+
+
                 }
-                return(false, $"Can not find Directory name \"{name}\"");
+                return (new GenericResult() { Success = false, Body = null, Message = $"Can not find Directory name \"{name}\"" });
+
             }
-            return(false, "User was not found");
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
         }
     }
 }

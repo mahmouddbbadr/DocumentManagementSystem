@@ -1,10 +1,7 @@
 ﻿using Application.Dtos;
-using Application.IRepository;
 using Application.IServices;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection.Metadata;
 
 namespace Presentaion.Controllers
 {
@@ -26,9 +23,9 @@ namespace Presentaion.Controllers
             var result = await documentService.GetDocument(name);
             if (result.Success)
             {
-                return Ok(result.document);
+                return Ok(result);
             }
-            return NotFound(result.Message);
+            return NotFound(result);
         }
 
 
@@ -38,9 +35,44 @@ namespace Presentaion.Controllers
             var result = await documentService.GetDocuments();
             if (result.Success)
             {
-                return Ok(result.documents);
+                return Ok(result);
             }
-            return NotFound(result.Message);
+            return NotFound(result);
+        }
+
+        [HttpGet("Shared")]
+        public async Task<IActionResult> GetSharedDocuments()
+        {
+            var result = await documentService.GetSharedDocuments();
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return NotFound(result);
+        }
+
+        [HttpGet("DirectoryName")]
+        public async Task<IActionResult> GetDocumentsByDirectoryName(string name)
+        {
+            var result = await documentService.GetDocumentsByDirectoryName(name);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return NotFound(result);
+        }
+
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("DirectoryName/UserId")]
+        public async Task<IActionResult> AdminGetDocumentsByDirectoryName(string name, string userId)
+        {
+            var result = await documentService.AdminGetDocumentsByDirectoryName(name, userId);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return NotFound(result);
         }
 
         [HttpGet("SortByName")]
@@ -49,9 +81,9 @@ namespace Presentaion.Controllers
             var result = await documentService.SortByName();
             if (result.Success)
             {
-                return Ok(result.documents);
+                return Ok(result);
             }
-            return NotFound(result.Message);
+            return NotFound(result);
         }
 
         [HttpGet("SortBySize")]
@@ -60,9 +92,9 @@ namespace Presentaion.Controllers
             var result = await documentService.SortBySize();
             if (result.Success)
             {
-                return Ok(result.documents);
+                return Ok(result);
             }
-            return NotFound(result.Message);
+            return NotFound(result);
         }
 
         [HttpGet("SortByDate")]
@@ -71,9 +103,9 @@ namespace Presentaion.Controllers
             var result = await documentService.SortByDate();
             if (result.Success)
             {
-                return Ok(result.documents);
+                return Ok(result);
             }
-            return NotFound(result.Message);
+            return NotFound(result);
         }
 
         [HttpPost]
@@ -82,19 +114,31 @@ namespace Presentaion.Controllers
             var result = await documentService.UploadeDocument(documentDto);
             if(result.Success)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
+        }
+
+        [HttpPut()]
+        public async Task<IActionResult> EditDocument(string OldName, string NewName )
+        {
+            var result = await documentService.EditDocument(OldName, NewName);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
 
 
-        [HttpGet("Download/name")]
-        public async Task<IActionResult> DownloadDocument(string name)
+        [HttpGet("Download")]
+        public async Task<IActionResult> DownloadDocument(string name, string wwwRootName)
         {
-            var result = await documentService.DownloadDocument(name);
+            var result = await documentService.DownloadDocument(name, wwwRootName);
             if (result.Success)
             {
                 return File(result.bytes, result.contentType, result.name);
+
             }
             return NotFound(result.Message);
         }
@@ -105,9 +149,9 @@ namespace Presentaion.Controllers
             var result = await documentService.DeleteDocument(name);
             if (result.Success)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(result);
         }
 
     }

@@ -1,12 +1,7 @@
 ﻿using Application.IRepository;
-using Domain.Models;
 using Infrasturcture.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Infrasturcture.Repositories
 {
@@ -20,7 +15,7 @@ namespace Infrasturcture.Repositories
         }
         public bool CheckEntityExits(string name, string userId)
         {
-            return context.Directories.Where(d => d.IsDeleted == false & d.UserId == userId).Any(d=> d.Name.Trim().ToLower() == name.Trim().ToLower());
+            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == userId).Any(d=> d.Name.Trim().ToLower() == name.Trim().ToLower());
         }
 
         public bool CheckEntityExits(Guid id, string userId)

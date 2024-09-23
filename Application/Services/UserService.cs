@@ -140,9 +140,12 @@ namespace Infrasturcture.Services
             return (new GenericResult() { Success = false, Body = null, Message = $"No user was found with email \"{email}\"" });
         }
 
-        public async Task<GenericResult> GetUnBlockedUsers()
+        public async Task<GenericResult> GetUnBlockedUsers(int page, int pageSize)
         {
-            var users = (userRepository.GetUnBlockedUsers());
+            var users = userRepository.GetUnBlockedUsers();
+            var totalCount = users.Count;
+            var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+            users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
             if (users.Count != 0)
             {
                 List<UserOutputDto> mappedUsers = new List<UserOutputDto>();
@@ -153,26 +156,29 @@ namespace Infrasturcture.Services
                     var mappedUser = mapper.Map<UserOutputDto>(user);
                     mappedUsers.Add(mappedUser);
                 }
-                return (new GenericResult() { Success = true, Body = mappedUsers, Message = null });
+                return (new GenericResult() { Success = true, Body = new { MappedUsers= mappedUsers, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 
             }
             return (new GenericResult() { Success = false, Body = null, Message = "No users was found" });
         }
 
-        public async Task<GenericResult> GetBlockedUsers()
+        public async Task<GenericResult> GetBlockedUsers(int page, int pageSize)
         {
-            var users = (userRepository.GetBlockedUsers());
+            var users = userRepository.GetBlockedUsers();
+            var totalCount = users.Count;
+            var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+            users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
             if (users.Count != 0)
             {
-                List<UserOutputDto> mappedUsers = new List<UserOutputDto>();
+                List<UserOutputDto> mappedusers = new List<UserOutputDto>();
                 foreach (var user in users)
                 {
                     var workwpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, user.Id);
                     user.WorkSpace = workwpace;
-                    var mappedUser = mapper.Map<UserOutputDto>(user);
-                    mappedUsers.Add(mappedUser);
+                    var mappeduser = mapper.Map<UserOutputDto>(user);
+                    mappedusers.Add(mappeduser);
                 }
-                return (new GenericResult() { Success = true, Body = mappedUsers, Message = null});
+                return (new GenericResult() { Success = true, Body =new { mappedUsers = mappedusers, TotalCount = totalCount, TotalPages = totalPages  }, Message = null});
 
             }
             return (new GenericResult() { Success = false, Body = null, Message = "No users was found" });

@@ -30,9 +30,9 @@ namespace Presentaion.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetDocuments()
+        public async Task<IActionResult> GetDocuments(int page, int pageSize)
         {
-            var result = await documentService.GetDocuments();
+            var result = await documentService.GetDocuments( page, pageSize);
             if (result.Success)
             {
                 return Ok(result);
@@ -41,9 +41,9 @@ namespace Presentaion.Controllers
         }
 
         [HttpGet("Shared")]
-        public async Task<IActionResult> GetSharedDocuments()
+        public async Task<IActionResult> GetSharedDocuments(int page, int pageSize)
         {
-            var result = await documentService.GetSharedDocuments();
+            var result = await documentService.GetSharedDocuments( page, pageSize);
             if (result.Success)
             {
                 return Ok(result);
@@ -52,9 +52,9 @@ namespace Presentaion.Controllers
         }
 
         [HttpGet("DirectoryName")]
-        public async Task<IActionResult> GetDocumentsByDirectoryName(string name)
+        public async Task<IActionResult> GetDocumentsByDirectoryName(string name, int page, int pageSize)
         {
-            var result = await documentService.GetDocumentsByDirectoryName(name);
+            var result = await documentService.GetDocumentsByDirectoryName(name, page, pageSize);
             if (result.Success)
             {
                 return Ok(result);
@@ -64,10 +64,10 @@ namespace Presentaion.Controllers
 
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("DirectoryName/UserId")]
-        public async Task<IActionResult> AdminGetDocumentsByDirectoryName(string name, string userId)
+        [HttpGet("DirectoryName/Email")]
+        public async Task<IActionResult> AdminGetDocumentsByDirectoryName(string name, string email, int page, int pageSize)
         {
-            var result = await documentService.AdminGetDocumentsByDirectoryName(name, userId);
+            var result = await documentService.AdminGetDocumentsByDirectoryName(name, email, page, pageSize);
             if (result.Success)
             {
                 return Ok(result);

@@ -33,9 +33,9 @@ namespace Presentaion.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetDirectoryies()
+        public async Task<IActionResult> GetDirectoryies(int page, int pageSize)
         {
-            var result = await directoryService.GetDirectoryies();
+            var result = await directoryService.GetDirectoryies(page, pageSize);
             if (result.Success)
             {
                 return Ok(result);
@@ -44,10 +44,10 @@ namespace Presentaion.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("UserId")]
-        public async Task<IActionResult> AdminGetDirectoryies(string id)
+        [HttpGet("Email")]
+        public async Task<IActionResult> AdminGetDirectoryies(string email, int page, int pageSize)
         {
-            var result = await directoryService.AdminGetDirectoryies(id);
+            var result = await directoryService.AdminGetDirectoryies(email, page, pageSize);
             if (result.Success)
             {
                 return Ok(result);

@@ -43,18 +43,18 @@ namespace Presentaion.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUnBlockedUsers()
+        public async Task<IActionResult> GetUnBlockedUsers(int page, int pageSize)
         {
-            var result = await userService.GetUnBlockedUsers();
+            var result = await userService.GetUnBlockedUsers(page, pageSize);
             if (result.Success)
                 return Ok(result);
             return NotFound(result);
         }
 
         [HttpGet("BlockedUsers")]
-        public async Task<IActionResult> GetBlockedUsers()
+        public async Task<IActionResult> GetBlockedUsers(int page, int pageSize)
         {
-            var result = await userService.GetBlockedUsers();
+            var result = await userService.GetBlockedUsers(page, pageSize);
             if (result.Success)
                 return Ok(result);
             return NotFound(result);

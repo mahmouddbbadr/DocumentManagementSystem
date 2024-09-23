@@ -81,15 +81,18 @@ namespace Infrasturcture.Services
 
         }
 
-        public async Task<GenericResult> GetDirectoryies()
+        public async Task<GenericResult> GetDirectoryies(int page, int pageSize)
         {
             var userId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
             {
                 var directories = mapper.Map<ICollection<DirectoryDto>>(directoryRepository.GetAll(userId));
+                var totalCount = directories.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                directories = directories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 if (directories != null)
                 {
-                    return (new GenericResult() { Success = true, Body = directories, Message = null});
+                    return (new GenericResult() { Success = true, Body = new { Directories = directories, TotalCount = totalCount, TotalPages = totalPages }, Message = null});
 
                 }
                 return (new GenericResult() { Success = false, Body = null, Message = "No directories was found for this user" });
@@ -97,15 +100,18 @@ namespace Infrasturcture.Services
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
         }
-        public async Task<GenericResult> AdminGetDirectoryies(string userId)
+        public async Task<GenericResult> AdminGetDirectoryies(string email, int page, int pageSize)
         {
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await userManager.FindByEmailAsync(email);
             if (user != null)
             {
-                var directories = mapper.Map<ICollection<DirectoryDto>>(directoryRepository.GetAll(userId));
+                var directories = mapper.Map<ICollection<DirectoryDto>>(directoryRepository.GetAll(user.Id));
+                var totalCount = directories.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                directories = directories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 if (directories != null)
                 {
-                    return (new GenericResult() { Success = true, Body = directories, Message = null });
+                    return (new GenericResult() { Success = true, Body = new { Directories = directories, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 
                 }
                 return (new GenericResult() { Success = false, Body = null, Message = "No directories was found for this user" });

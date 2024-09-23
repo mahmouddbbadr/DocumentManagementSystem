@@ -14,8 +14,8 @@ namespace Application.Services
         public Task<GenericResult> BlockUser(string email);
         public Task<GenericResult> UnBlockUser(string email);
         public Task<GenericResult> GetUser(string email);
-        public Task<GenericResult> GetUnBlockedUsers();
-        public Task<GenericResult> GetBlockedUsers();
+        public Task<GenericResult> GetUnBlockedUsers(int page, int pageSize);
+        public Task<GenericResult> GetBlockedUsers(int page, int pageSize);
 
 
     }

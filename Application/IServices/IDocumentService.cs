@@ -14,13 +14,32 @@ namespace Application.IServices
         public Task <GenericResult> GetDocuments(int page, int pageSize);
         public Task <GenericResult> GetSharedDocuments(int page, int pageSize);
 
-        public Task <GenericResult> SortByName();
-        public Task <GenericResult> SortBySize();
-        public Task <GenericResult> SortByDate();
+        public Task <GenericResult> SortByNameAscending(string name, int page, int pageSize);
+        public Task <GenericResult> SortBySizeAscending(string name, int page, int pageSize);
+        public Task <GenericResult> SortByDateAscending(string name, int page, int pageSize);
+        public Task<GenericResult> SortByNameDescending(string name, int page, int pageSize);
+        public Task<GenericResult> SortBySizeDescending(string name, int page, int pageSize);
+        public Task<GenericResult> SortByDateDescending(string name, int page, int pageSize);
         public Task <(bool Success, byte[] bytes, string contentType, string name, string Message)> DownloadDocument(string name, string wwwRootName);
         public Task <GenericResult> DeleteDocument(string name);
 
         public Task <GenericResult> EditDocument(string name, string NewName);
+
+
+        public Task<GenericResult> GetSharedDocumentSortedByDateDescending(int page, int pageSize);
+        public Task<GenericResult> GetSharedDocumentSortedByDateAscending(int page, int pageSize);
+        public Task<GenericResult> GetSharedDocumentSortedByNameDescending(int page, int pageSize);
+        public Task<GenericResult> GetSharedDocumentSortedByNameAscending(int page, int pageSize);
+        public Task<GenericResult> GetSharedDocumentSortedBySizeDescending(int page, int pageSize);
+        public Task<GenericResult> GetSharedDocumentSortedBySizeAscending(int page, int pageSize);
+
+        public Task<GenericResult> SearchDocuments(string filter, int page, int pageSize);
+        public Task<GenericResult> SearchSharedDocuments(string filter, int page, int pageSize);
+        Task<GenericResult> AdminSearchDocumentsByDirectoryName(string filter, string name, string email, int page, int pageSize);
+
+
+
+
 
 
 

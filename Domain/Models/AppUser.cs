@@ -11,6 +11,8 @@ namespace Domain.Models
         public string NId { get; set; }
         public string Address { get; set; }
         public bool IsLocked { get; set; } = false;
+        public string Role { get; set; }
+
         public DocumentAccessControl AccessControl { get; set; } = DocumentAccessControl.RootUser;
 
         [ForeignKey("WorkSpace")]

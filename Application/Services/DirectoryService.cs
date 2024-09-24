@@ -100,6 +100,7 @@ namespace Infrasturcture.Services
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
         }
+       
         public async Task<GenericResult> AdminGetDirectoryies(string email, int page, int pageSize)
         {
             var user = await userManager.FindByEmailAsync(email);
@@ -169,5 +170,29 @@ namespace Infrasturcture.Services
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
 
         }
+
+        public async Task<GenericResult> SearchDirectoryies(string filter, int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var directories = mapper.Map<ICollection<DirectoryDto>>(directoryRepository.Search(filter, userId));
+                var totalCount = directories.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                directories = directories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (directories != null)
+                {
+                    return (new GenericResult() { Success = true, Body = new { Directories = directories, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No directories was found for this user" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+
+
     }
+
+
 }

@@ -17,5 +17,9 @@ namespace Application.IRepository
         bool Delete(string name, string userId);
         bool Delete(Guid id, string userId);
         bool Save();
+
+        ICollection<T> Search(string filter, string userId);
+
+
     }
 }

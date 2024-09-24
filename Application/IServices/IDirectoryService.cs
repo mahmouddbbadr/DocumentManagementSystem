@@ -12,6 +12,7 @@ namespace Application.IServices
         public Task<GenericResult> CreateDirectory(string name);
         public Task<GenericResult> DeleteDirectory(string name);
         public Task<GenericResult> EditDirectory(string name, DirectoryOutputDto directoryDto);
+        public Task<GenericResult> SearchDirectoryies(string filter, int page, int pageSize);
 
     }
 

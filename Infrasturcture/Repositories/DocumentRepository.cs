@@ -83,19 +83,33 @@ namespace Infrasturcture.Repositories
             return saved > 0? true : false;
         }
 
-        public ICollection<Document> SortByName(string userId)
+        public ICollection<Document> SortByNameAscending(Guid directoryId, string userId)
         {
-            return context.Documents.Where(d=> d.IsDeleted == false && d.UserId == userId).OrderBy(d => d.Name).ToList();
+            return context.Documents.Where(d=> d.IsDeleted == false && d.UserId == userId && d.DirectoryId == directoryId).OrderBy(d => d.Name).ToList();
         }
 
-        public ICollection<Document> SortByDate(string userId)
+        public ICollection<Document> SortByDateAscending(Guid directoryId, string userId)
         {
-            return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId).OrderBy(d => d.UploadedAt).ToList();
+            return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId && d.DirectoryId == directoryId).OrderBy(d => d.UploadedAt).ToList();
         }
 
-        public ICollection<Document> SortBySize(string userId)
+        public ICollection<Document> SortBySizeAscending(Guid directoryId, string userId)
         {
-            return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId).OrderBy(d => d.Size).ToList();
+            return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId && d.DirectoryId == directoryId).OrderBy(d => d.Size).ToList();
+        }
+        public ICollection<Document> SortByNameDescending(Guid directoryId, string userId)
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId && d.DirectoryId == directoryId).OrderByDescending(d => d.Name).ToList();
+        }
+
+        public ICollection<Document> SortByDateDescending(Guid directoryId, string userId)
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId && d.DirectoryId == directoryId).OrderByDescending(d => d.UploadedAt).ToList();
+        }
+
+        public ICollection<Document> SortBySizeDescending(Guid directoryId, string userId)
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.UserId == userId && d.DirectoryId == directoryId).OrderByDescending(d => d.Size).ToList();
         }
 
         public ICollection<Document> GetByDirectoryId(Guid directoryId)
@@ -106,7 +120,47 @@ namespace Infrasturcture.Repositories
         public ICollection<Document> GetAllShared()
         {
             return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false).ToList();
-
         }
+        public ICollection<Document> GetAllSharedSortedByNameAscending()
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false).OrderBy(d=> d.Name).ToList();
+        }
+        public ICollection<Document> GetAllSharedSortedByNameDescending()
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false).OrderByDescending(d => d.Name).ToList();
+        }
+        public ICollection<Document> GetAllSharedSortedBySizeAscending()
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false).OrderBy(d => d.Size).ToList();
+        }
+        public ICollection<Document> GetAllSharedSortedBySizeDescending()
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false).OrderByDescending(d => d.Size).ToList();
+        }
+        public ICollection<Document> GetAllSharedSortedByDeteAscending()
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false).OrderBy(d => d.UploadedAt).ToList();
+        }
+        public ICollection<Document> GetAllSharedSortedByDateDescending()
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false).OrderByDescending(d => d.UploadedAt).ToList();
+        }
+
+
+        public ICollection<Document> Search(string filter, string userId)
+        {
+            return context.Documents.Where(d => !d.IsDeleted && d.UserId == userId && d.Name.ToLower().StartsWith(filter.ToLower())).ToList();
+        }
+        public ICollection<Document> SearchAllShared(string filter)
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.Directory.IsPrivate == false && d.Name.ToLower().StartsWith(filter.ToLower())).ToList();
+        }
+
+        public ICollection<Document> AdminSearch(string filter, Guid directoryId)
+        {
+            return context.Documents.Where(d => d.IsDeleted == false && d.DirectoryId == directoryId && d.Name.ToLower().StartsWith(filter.ToLower())).ToList();
+        }
+
+
     }
 }

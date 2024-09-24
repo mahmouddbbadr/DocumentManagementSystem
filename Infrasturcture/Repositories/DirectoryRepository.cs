@@ -76,6 +76,10 @@ namespace Infrasturcture.Repositories
             return saved > 0 ? true : false; 
         }
 
+        public ICollection<Domain.Models.Directory> Search(string filter, string userId)
+        {
+            return context.Directories.Where(d => d.IsDeleted == false && d.UserId == userId && d.Name.ToLower().StartsWith(filter.ToLower())).ToList();
+        }
 
     }
 }

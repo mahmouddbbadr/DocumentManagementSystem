@@ -78,5 +78,23 @@ namespace Presentaion.Controllers
             return NotFound(result);
         }
 
+        [HttpGet("SearchUnBlocked")]
+        public async Task<IActionResult> SearchUnBlocked(string filter, int page, int pageSize)
+        {
+            var result = await userService.SearchUnBlockedUsers(filter, page, pageSize);
+            if (result.Success)
+                return Ok(result);
+            return NotFound(result);
+        }
+
+        [HttpGet("SearchBlocked")]
+        public async Task<IActionResult> SearchBlocked(string filter, int page, int pageSize)
+        {
+            var result = await userService.SearchBlockedUsers(filter, page, pageSize);
+            if (result.Success)
+                return Ok(result);
+            return NotFound(result);
+        }
+
     }
 }

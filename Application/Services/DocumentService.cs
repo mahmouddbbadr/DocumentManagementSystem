@@ -101,6 +101,128 @@ namespace Infrasturcture.Services
 
         }
 
+        public async Task<GenericResult> GetSharedDocumentSortedByNameAscending(int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.GetAllSharedSortedByNameAscending();
+                var totalCount = documents.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+        public async Task<GenericResult> GetSharedDocumentSortedByNameDescending(int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.GetAllSharedSortedByNameDescending();
+                var totalCount = documents.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+        public async Task<GenericResult> GetSharedDocumentSortedBySizeAscending(int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.GetAllSharedSortedBySizeAscending();
+                var totalCount = documents.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+        public async Task<GenericResult> GetSharedDocumentSortedBySizeDescending(int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.GetAllSharedSortedBySizeDescending();
+                var totalCount = documents.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+        public async Task<GenericResult> GetSharedDocumentSortedByDateAscending(int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.GetAllSharedSortedByDeteAscending();
+                var totalCount = documents.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+        public async Task<GenericResult> GetSharedDocumentSortedByDateDescending(int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.GetAllSharedSortedByDateDescending();
+                var totalCount = documents.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+
+
         public async Task<GenericResult> UploadeDocument(DocumentInputDto documentDto)
         {
 
@@ -165,58 +287,155 @@ namespace Infrasturcture.Services
 
         }
 
-        public async Task<GenericResult> SortByName()
+        public async Task<GenericResult> SortByNameAscending(string name, int page, int pageSize)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
             {
-                var documents = documentRepository.SortByName(userId);
-                if (documents.Count != 0)
-                {
-                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
-                    return (new GenericResult() { Success = true, Body = documentDtos, Message = null });
+                var directory = directoryRepository.GetByIdOrName(name, userId);
+                if (directory != null)
+                { 
+                    var documents = documentRepository.SortByNameAscending(directory.Id, userId);
+                    var totalCount = documents.Count;
+                    var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                    documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                    if (documents.Count != 0)
+                    {
+                        var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                        return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
                 }
-                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
-
+                return (new GenericResult() { Success = false, Body = null, Message = $"No directory was not found with name \"{name}\"" });
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
 
         }
 
-        public async Task<GenericResult> SortBySize()
+        public async Task<GenericResult> SortBySizeAscending(string name, int page, int pageSize)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
             {
-                var documents = documentRepository.SortBySize(userId);
-                if (documents.Count != 0)
-                {
-                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
-                    return (new GenericResult() { Success = true, Body = documentDtos, Message = null });
-
+                var directory = directoryRepository.GetByIdOrName(name, userId);
+                if (directory != null)
+                { 
+                    var documents = documentRepository.SortBySizeAscending(directory.Id, userId);
+                    var totalCount = documents.Count;
+                    var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                    documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                    if (documents.Count != 0)
+                    {
+                        var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                        return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
                 }
-                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
-
+                return (new GenericResult() { Success = false, Body = null, Message = $"No directory was not found with name \"{name}\"" });
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
 
         }
 
 
-        public async Task<GenericResult> SortByDate()
+        public async Task<GenericResult> SortByDateAscending(string name, int page, int pageSize)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
             {
-                var documents = documentRepository.SortByDate(userId);
-                if (documents.Count != 0)
-                {
-                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
-                    return (new GenericResult() { Success = true, Body = documentDtos, Message = null });
+                var directory = directoryRepository.GetByIdOrName(name, userId);
+                if (directory != null)
+                { 
+                    var documents = documentRepository.SortByDateAscending(directory.Id, userId);
+                    var totalCount = documents.Count;
+                    var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                    documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                    if (documents.Count != 0)
+                    {
+                        var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                        return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
                 }
-                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+                return (new GenericResult() { Success = false, Body = null, Message = $"No directory was not found with name \"{name}\"" });
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
 
+        }
+
+        public async Task<GenericResult> SortByNameDescending(string name, int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var directory = directoryRepository.GetByIdOrName(name, userId);
+                if (directory != null)
+                {
+                    var documents = documentRepository.SortByNameDescending(directory.Id, userId);
+                    var totalCount = documents.Count;
+                    var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                    documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                    if (documents.Count != 0)
+                    {
+                        var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                        return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = $"No directory was not found with name \"{name}\"" });
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
+        }
+
+        public async Task<GenericResult> SortBySizeDescending(string name, int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var directory = directoryRepository.GetByIdOrName(name, userId);
+                if (directory != null)
+                { 
+                    var documents = documentRepository.SortBySizeDescending(directory.Id,userId);
+                    var totalCount = documents.Count;
+                    var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                    documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                    if (documents.Count != 0)
+                    {
+                        var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                        return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = $"No directory was not found with name \"{name}\"" });
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
+        }
+
+
+        public async Task<GenericResult> SortByDateDescending(string name, int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var directory = directoryRepository.GetByIdOrName(name, userId);
+                if (directory != null)
+                {
+                    var documents = documentRepository.SortByDateDescending(directory.Id,userId);
+                    var totalCount = documents.Count;
+                    var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                    documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                    if (documents.Count != 0)
+                    {
+                        var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                        return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = $"No directory was not found with name \"{name}\"" });
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
 
@@ -344,6 +563,76 @@ namespace Infrasturcture.Services
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
 
+        }
+
+        public async Task<GenericResult> SearchDocuments(string filter, int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.Search(filter, userId);
+                var totalCount = documents.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+        }
+
+        public async Task<GenericResult> SearchSharedDocuments(string filter, int page, int pageSize)
+        {
+            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var documents = documentRepository.SearchAllShared(filter);
+                var totalCount = documents.Count;
+                var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                if (documents.Count != 0)
+                {
+                    var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                    return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
+
+        }
+
+
+        public async Task<GenericResult> AdminSearchDocumentsByDirectoryName(string filter, string name, string email, int page, int pageSize)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var directory = directoryRepository.GetByIdOrName(name, user.Id);
+                if (directory != null)
+                {
+                    var documents = documentRepository.AdminSearch(filter, directory.Id);
+                    var totalCount = documents.Count;
+                    var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+                    documents = documents.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                    if (documents.Count != 0)
+                    {
+                        var Mappeddocuments = mapper.Map<ICollection<DocumentOutputDto>>(documents);
+                        return (new GenericResult() { Success = true, Body = new { Documents = Mappeddocuments, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+                    }
+                    return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+                }
+                return (new GenericResult() { Success = false, Body = null, Message = $"Directory \"{name}\" was not found" });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
         }
     }
 }

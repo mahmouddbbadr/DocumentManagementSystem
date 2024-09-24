@@ -77,7 +77,9 @@ namespace Infrasturcture.Repositories
             var saved = context.SaveChanges();
             return saved > 0 ? true : false;
         }
-
-
+        public ICollection<WorkSpace> Search(string filter, string userId)
+        {
+            return context.WorkSpaces.Where(d => !d.IsDeleted && d.Name.ToLower().StartsWith(filter.ToLower())).ToList();
+        }
     }
 }

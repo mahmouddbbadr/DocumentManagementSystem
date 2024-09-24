@@ -43,6 +43,17 @@ namespace Presentaion.Controllers
             return NotFound(result);
         }
 
+        [HttpGet("Search")]
+        public async Task<IActionResult> SearchDirectoryies(string filter, int page, int pageSize)
+        {
+            var result = await directoryService.SearchDirectoryies(filter, page, pageSize);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return NotFound(result);
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("Email")]
         public async Task<IActionResult> AdminGetDirectoryies(string email, int page, int pageSize)

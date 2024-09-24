@@ -37,5 +37,14 @@ namespace Infrasturcture.Repositories
             return userManager.Users.Where(u => u.IsLocked == true).FirstOrDefault(e => e.Email.Trim().ToLower() == email.Trim().ToLower());
         }
 
+        public ICollection<AppUser> SearchUnBlocked(string filter)
+        {
+            return userManager.Users.Where(u => u.IsLocked == false && u.Email.ToLower().StartsWith(filter.ToLower())).ToList();
+        }
+        public ICollection<AppUser> SearchBlocked(string filter)
+        {
+            return userManager.Users.Where(u => u.IsLocked == true && u.Email.ToLower().StartsWith(filter.ToLower())).ToList();
+        }
+
     }
 }

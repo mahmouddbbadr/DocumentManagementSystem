@@ -52,7 +52,9 @@ namespace Infrasturcture.Services
                         UserName = registerDto.Email.Substring(0, registerDto.Email.IndexOf('@')),
                         Address = registerDto.Address,
                         NId = registerDto.NId,
-                        PhoneNumber = registerDto.PhoneNumber
+                        PhoneNumber = registerDto.PhoneNumber,
+                        Role = "User"
+                        
                     };
                     var workSpace = new WorkSpace()
                     {
@@ -111,6 +113,7 @@ namespace Infrasturcture.Services
                         signingCredentials: signingCredentials,
                         claims: claims
                         );
+
                     var mappedUser = mapper.Map<UserOutputDto>(user);
                     return (new GenericResult(){
                         Success = true,
@@ -238,5 +241,48 @@ namespace Infrasturcture.Services
             return (new GenericResult() { Success = false, Body = null, Message = "Can not find user" });
         }
 
+        public async Task<GenericResult> SearchUnBlockedUsers(string filter, int page, int pageSize)
+        {
+            var users = userRepository.SearchUnBlocked(filter);
+            var totalCount = users.Count;
+            var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+            users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            if (users.Count != 0)
+            {
+                List<UserOutputDto> mappedUsers = new List<UserOutputDto>();
+                foreach (var user in users)
+                {
+                    var workwpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, user.Id);
+                    user.WorkSpace = workwpace;
+                    var mappedUser = mapper.Map<UserOutputDto>(user);
+                    mappedUsers.Add(mappedUser);
+                }
+                return (new GenericResult() { Success = true, Body = new { MappedUsers = mappedUsers, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "No users was found" });
+        }
+
+        public async Task<GenericResult> SearchBlockedUsers(string filter, int page, int pageSize)
+        {
+            var users = userRepository.SearchBlocked(filter);
+            var totalCount = users.Count;
+            var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+            users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            if (users.Count != 0)
+            {
+                List<UserOutputDto> mappedUsers = new List<UserOutputDto>();
+                foreach (var user in users)
+                {
+                    var workwpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, user.Id);
+                    user.WorkSpace = workwpace;
+                    var mappedUser = mapper.Map<UserOutputDto>(user);
+                    mappedUsers.Add(mappedUser);
+                }
+                return (new GenericResult() { Success = true, Body = new { MappedUsers = mappedUsers, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
+
+            }
+            return (new GenericResult() { Success = false, Body = null, Message = "No users was found" });
+        }
     }
 }

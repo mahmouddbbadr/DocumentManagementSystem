@@ -252,7 +252,7 @@ namespace Infrasturcture.Services
                                 Size = documentDto.File.Length,
                                 UploadedAt = DateTime.Now,
                                 extention = extention,
-                                Owner = user.UserName,
+                                Owner = user.Email,
                                 DirectoryId = directory.Id,
                                 UserId = userId,
                                 Tags = new List<Tag>()

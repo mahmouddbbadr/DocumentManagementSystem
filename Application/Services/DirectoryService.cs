@@ -180,7 +180,7 @@ namespace Infrasturcture.Services
                 var totalCount = directories.Count;
                 var totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
                 directories = directories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-                if (directories != null)
+                if (directories.Count !=0)
                 {
                     return (new GenericResult() { Success = true, Body = new { Directories = directories, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 

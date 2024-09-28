@@ -162,7 +162,7 @@ namespace Infrasturcture.Services
                 return (new GenericResult() { Success = true, Body = new { MappedUsers= mappedUsers, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 
             }
-            return (new GenericResult() { Success = false, Body = null, Message = "No users was found" });
+            return (new GenericResult() { Success = true, Body = users, Message = "No users was found" });
         }
 
         public async Task<GenericResult> GetBlockedUsers(int page, int pageSize)
@@ -184,7 +184,7 @@ namespace Infrasturcture.Services
                 return (new GenericResult() { Success = true, Body =new { mappedUsers = mappedusers, TotalCount = totalCount, TotalPages = totalPages  }, Message = null});
 
             }
-            return (new GenericResult() { Success = false, Body = null, Message = "No users was found" });
+            return (new GenericResult() { Success = true, Body = users, Message = "No users was found" });
         }
 
         public async Task<GenericResult> BlockUser(string email)
@@ -197,7 +197,7 @@ namespace Infrasturcture.Services
                 return (new GenericResult() { Success = true, Body = null, Message = "user has been blocked successfully" });
 
             }
-            return (new GenericResult() { Success = false, Body = null, Message = "Can not find user" });
+            return (new GenericResult() { Success = true, Body = user, Message = "Can not find user" });
         }
 
         public async Task<GenericResult> UnBlockUser(string email)
@@ -210,35 +210,33 @@ namespace Infrasturcture.Services
                 return (new GenericResult() { Success = true, Body = null, Message = "user has been Unblocked successfully" });
 
             }
-            return (new GenericResult() { Success = false, Body = null, Message = "Can not find user" });
+            return (new GenericResult() { Success = true, Body = user, Message = "Can not find user" });
         }
 
         public async Task<GenericResult> LoginedUserInformation()
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(userId != null)
+            var user = await userManager.FindByIdAsync(userId);
+            if (user != null)
             {
-                var user = await userManager.FindByIdAsync(userId);
                 var workSpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, userId);
                 user.WorkSpace = workSpace; 
                 var mappedUser = mapper.Map<UserOutputDto>(user);
                 return (new GenericResult() { Success = true, Body = mappedUser, Message = null});
-
-
             }
-            return (new GenericResult() { Success = false, Body = null, Message = "Can not find user" });
+            return (new GenericResult() { Success = true, Body = user, Message = "Can not find user" });
         }
         public async Task<GenericResult> AdminGetUserInformation( string userId)
         {
             var user = await userManager.FindByIdAsync(userId);
             if(user != null)
             {
-            var workSpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, userId);
-            user.WorkSpace = workSpace;
-            var mappedUser = mapper.Map<UserOutputDto>(user);
-            return (new GenericResult() { Success = true, Body = mappedUser, Message = null });
+                var workSpace = workSpaceRepository.GetByIdOrName(user.WorkspaceId, userId);
+                user.WorkSpace = workSpace;
+                var mappedUser = mapper.Map<UserOutputDto>(user);
+                return (new GenericResult() { Success = true, Body = mappedUser, Message = null });
             }
-            return (new GenericResult() { Success = false, Body = null, Message = "Can not find user" });
+            return (new GenericResult() { Success = true, Body = user, Message = "Can not find user" });
         }
 
         public async Task<GenericResult> SearchUnBlockedUsers(string filter, int page, int pageSize)
@@ -260,7 +258,7 @@ namespace Infrasturcture.Services
                 return (new GenericResult() { Success = true, Body = new { MappedUsers = mappedUsers, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 
             }
-            return (new GenericResult() { Success = false, Body = null, Message = "No users was found" });
+            return (new GenericResult() { Success = true, Body = users, Message = "No users was found" });
         }
 
         public async Task<GenericResult> SearchBlockedUsers(string filter, int page, int pageSize)
@@ -282,7 +280,7 @@ namespace Infrasturcture.Services
                 return (new GenericResult() { Success = true, Body = new { MappedUsers = mappedUsers, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 
             }
-            return (new GenericResult() { Success = false, Body = null, Message = "No users was found" });
+            return (new GenericResult() { Success = true, Body = users, Message = "No users was found" });
         }
     }
 }

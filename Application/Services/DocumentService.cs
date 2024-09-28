@@ -579,7 +579,7 @@ namespace Infrasturcture.Services
                     var documentDtos = mapper.Map<ICollection<DocumentOutputDto>>(documents);
                     return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
                 }
-                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+                return (new GenericResult() { Success = true, Body = documents, Message = "No documents was not found" });
 
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
@@ -600,7 +600,7 @@ namespace Infrasturcture.Services
                     return (new GenericResult() { Success = true, Body = new { Documents = documentDtos, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 
                 }
-                return (new GenericResult() { Success = false, Body = null, Message = "No documents was not found" });
+                return (new GenericResult() { Success = true, Body = documents, Message = "No documents was not found" });
 
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });

@@ -185,7 +185,7 @@ namespace Infrasturcture.Services
                     return (new GenericResult() { Success = true, Body = new { Directories = directories, TotalCount = totalCount, TotalPages = totalPages }, Message = null });
 
                 }
-                return (new GenericResult() { Success = false, Body = null, Message = "No directories was found for this user" });
+                return (new GenericResult() { Success = true, Body = directories, Message = "No directories was found for this user" });
 
             }
             return (new GenericResult() { Success = false, Body = null, Message = "User was not found" });
